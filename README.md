@@ -1,5 +1,26 @@
-# BinListHash
+# BinaryListHash
+
 A very fast hash for really big data sets
+
+If you have millions or 10's of millions of key/value pairs then you
+might need this hash tree.
+
+**Features**
+
+- Can use less memory than the actual total bytes of the key/value pair in some cases.
+- Template driven so you can extremely large keys.
+- no costly resize operations like std::map or std::unordered_map
+- maintains sort order.
+
+**Things to Know**
+
+- Values can only be upto 8 bytes long. This will hold a 64bit pointer, a double or a long long. If you results are larger than 8 bytes, store a pointer and perhaps use a [https://github.com/SethHamilton/HeapStack](HeapStack) to store a larger value structure,
+
+** Perforamnce **
+
+I'll get better performance data here soon but on my Core i7 @ 3.2Ghz I can insert 10 million 64bit keys and 64 bit values per second. I look up and retreive values at a rate of 30 million look up per second.
+
+On large datasets generally sequential keys will result in memory consumption less than the sizeof the key + sizeof the value. On generally random keys BinaryListHash will use about 60% of the total memory that std::unordered_map will use.
 
 **The MIT License (MIT)**
 
