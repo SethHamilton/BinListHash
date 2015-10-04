@@ -215,6 +215,10 @@ public:
 		
 	};
 
+	// debug - dumps usage data for the mememory manager
+	// 
+	// shows how many cached/recycled lits are available
+	//
 	void debug()
 	{
 		mem.debug();
