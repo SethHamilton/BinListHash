@@ -381,6 +381,7 @@ private:
 
 		// int64_t vs int32_t resulted in a 50% performance increase.
 		int64_t first = 0, last = node->used- 1, mid;
+		bool iterate = false;
 
 		if (node->used == 0) // empty list so retun -1 (meaning index 0)
 			return -1;			
@@ -393,18 +394,32 @@ private:
 		if (node->nodes[last].valueWord < valWord) // no point in looking the valWord is after the last item
 			return -(last + 2);
 
-	    // on a short list scanning sequentially is more efficient
-		// because the data is processors cache rows 
-		// iterating the first 64 is most efficient 
-		// and is quicker than list sub-division on i7 type processors.
-		// some of the nwer processors might benifit from a different setting
-
+		// the list is full, so, everything is 1:1 and valWord is the index
+		if (node->used == 65536)
+			return valWord;
+				
+		// on a short list scanning sequentially is more efficient
+		// because the data is processors cache lines. 
+		// iterating the first dozen or is most efficient 
+		// and is quicker than list sub-division on my i7 type processor.
+		// Some of the newer server processors might benifit from a 
+		// higher setting.
+		//
+		//  bl_element_s = 10 bytes
+		//  cache line   = 64 bytes. 
+		//  6 elements per cache line.
+		//  
+		//  testing showed a positive gain for on my processor
+		//  at two cache lines worth of elements.
 		
-		if (node->used < 64) // bl_element_s is 10 bytes long
+		if (node->used <= 12) 
 		{
 
 			++first; // we just checked index 0 above, so skip it
 
+			iterate = true;
+
+/*
 			for (; first <= last; ++first)
 			{
 				
@@ -420,26 +435,66 @@ private:
 			}
 
 			return -(last + 2);
-
-		}
-		
-
-		// assume (because these are 2 byte words from a key) that
-		// the distribution should be proportional, set mid point to
-		// estimated location in the distribution of the list
-		mid = (int64_t)(((double)valWord / 65536.0) * (double)(last+1));
-
-		while (first <= last)
+*/
+		} 
+		else
 		{
-			if (valWord > node->nodes[mid].valueWord)
-				first = mid + 1; // search bottom of list
-			else if (valWord < node->nodes[mid].valueWord)
-				last = mid - 1; // search top of list
-			else
-				return mid; // found
 
-			mid = (first + last) >> 1; // usally written like first + ((last - first) / 2)	
+			// A proportional first split!
+			//
+			// Let's assume the key has good distribution.
+			// If so then the values should distributed across the
+			// array be proportionally, lets set mid point to
+			// it's estimated location in the distribution of the list
+			//
+			mid = (int64_t)(((double)valWord / 65536.0) * (double)(last + 1));
+
+			while (first <= last)
+			{
+
+				// if the list gets short, lets stop dividing
+				// and iterate! I know, it sounds horrible,
+				// but it is actually "much" faster.
+				if (last - first <= 12)
+				{
+					iterate = true;
+					break;
+				}
+
+				if (valWord > node->nodes[mid].valueWord)
+					first = mid + 1; // search bottom of list
+				else if (valWord < node->nodes[mid].valueWord)
+					last = mid - 1; // search top of list
+				else
+					return mid; // found
+
+				mid = (first + last) >> 1; // usally written like first + ((last - first) / 2)	
+
+
+			}
+
 		}
+
+		if (iterate)
+		{
+
+			for (; first <= last; ++first)
+			{
+
+				// >= will pass either condition (the conditions of the inner and outer if),
+				// howeever on test that fails often is faster than two tests that fail often 
+				// thus reducing to a nested if on the match saved 15% on read time.
+				if (node->nodes[first].valueWord >= valWord)
+				{
+					if (node->nodes[first].valueWord == valWord)
+						return first;
+					return -(first + 1);
+				}
+			}
+
+			return -(last + 2);
+		}
+
 
 		return -(first + 1); // java sdk returns - number to show insertion point. To convert back to positive insertion -(first) - 1;
 
