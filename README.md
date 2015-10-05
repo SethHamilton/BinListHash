@@ -21,7 +21,7 @@ might need this hash tree.
 - Values can only be upto 8 bytes long. This will hold a 64bit pointer, a double or a long long. If you results are larger than 8 bytes, store a pointer and perhaps use a [https://github.com/SethHamilton/HeapStack](HeapStack) to store a larger value structure,
 - Inserting only acending order keys is slow. Inserting random keys performs well, inserting sequential keys performs very well.
 
-** Perforamnce **
+**Perforamnce**
 
 I'll get better performance data here soon but on my Core i7 @ 3.2Ghz I can insert 10 million 64bit keys and 64 bit values per second. I look up and retreive values at a rate of 30 million look up per second.
 
