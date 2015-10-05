@@ -23,7 +23,7 @@ might need this hash tree.
 
 **Perforamnce**
 
-I'll get better performance data here soon but on my Core i7 @ 3.2Ghz I can insert 10 million 64bit keys and 64 bit values per second. I look up and retreive values at a rate of 30 million look up per second.
+I'll will get better performance data here soon. On my Core i7 @ 3.2Ghz while inserting sparse but sequential 64 bit keys, I am seeing insert rates a 10.7 million key/values per second. I can look up and retreive values at a rate of 17.7 million key/value pairs per second.
 
 On large datasets generally sequential keys will result in memory consumption less than the sizeof the key + sizeof the value. On generally random keys BinaryListHash will use about 60% of the total memory that std::unordered_map will use.
 
