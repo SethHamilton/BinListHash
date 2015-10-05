@@ -8,13 +8,18 @@ might need this hash tree.
 **Features**
 
 - Can use less memory than the actual total bytes of the key/value pair in some cases.
-- Template driven so you can extremely large keys.
+- Template driven so you can use any structure as a key.
 - no costly resize operations like std::map or std::unordered_map
 - maintains sort order.
+- has a smaller memory foot print than std::map or std:unordered_map
+- 3x faster inserts than std::map or std::unordered_map
+- 5x faster reads than std::map or std::unordered_map
+- 60% of memory usage of std::map or std:unordere_map (not this varies depending on the data).
 
 **Things to Know**
 
 - Values can only be upto 8 bytes long. This will hold a 64bit pointer, a double or a long long. If you results are larger than 8 bytes, store a pointer and perhaps use a [https://github.com/SethHamilton/HeapStack](HeapStack) to store a larger value structure,
+- Inserting only acending order keys is slow. Inserting random keys performs well, inserting sequential keys performs very well.
 
 ** Perforamnce **
 
