@@ -80,7 +80,7 @@ public:
 		printf("Free Pool\r\n");
 		for (int i = 0; i < 17; i++)
 		{
-			printf("%i = %i\r\n", i, freePool[i].size());
+			printf("%i = %zi\r\n", i, freePool[i].size());
 		}
 
 		std::cout << mem.getBytes() << "\r\n";
@@ -198,7 +198,7 @@ private:
 	overlay over;
 	tBranch* iter, *words;
 	bl_array_s* node = root, *lastNode = node, *newNode;
-	int32_t index, lastIndex;
+	int64_t index, lastIndex;
 
 public:
 
@@ -468,8 +468,7 @@ private:
 				else
 					return mid; // found
 
-				mid = (first + last) >> 1; // usally written like first + ((last - first) / 2)	
-
+				mid = (first + last) >> 1; // usally written like first + ((last - first) / 2)			
 
 			}
 
@@ -494,13 +493,13 @@ private:
 
 			return -(last + 2);
 		}
-
-
-		return -(first + 1); // java sdk returns - number to show insertion point. To convert back to positive insertion -(first) - 1;
-
+		else
+		{
+			return -(first + 1); // java sdk returns - number to show insertion point. To convert back to positive insertion -(first) - 1;
+		}
 	};
 
-	bl_array_s* makeGap(bl_array_s* node, int index, bl_array_s* parent, int parentIndex)
+	bl_array_s* makeGap(bl_array_s* node, int64_t index, bl_array_s* parent, int64_t parentIndex)
 	{
 		int32_t length = 1 << (int)node->pageBits;
 
